@@ -165,7 +165,8 @@ int main(int argc, char* argv[]) {
 			puts("\t\t\t\t\t\t\t\texcept percentage sign (%)  is replaced with $,");
 			puts("\t\t\t\t\t\t\t\tso $04d for example");
 			puts("--sprites-per-row <number>, -spr <number>			Sets number of sprites per row in the output file.");
-			puts("--input-dir <directory path>, -idir <pattern>			Sets a directory where to scan the images.");
+			puts("--start-index <number>, -si <number>				Sets the start index for filename aka. For example 1, for 0001.png");
+			puts("--input-dir <directory path>, -idir <pattern>		Sets a directory where to scan the images.");
 			puts("--frame-count <number>, -fc <number>				How many images are we reading from the current directory.");
 			puts("--output <file path>, -o <file path>				Sets an output file path.");
 			exit(0);
@@ -226,7 +227,7 @@ int main(int argc, char* argv[]) {
 	x = 0;
 	y = 0;
 
-	for(i = 0; i < frame_count; i++) {
+	for(i = start_index; i < start_index + frame_count; i++) {
 		x = i % sprites_per_row;
 		y = i / sprites_per_row;
 		for(j = 0; j < sprite_height; j++) {
