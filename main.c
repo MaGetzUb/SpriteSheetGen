@@ -174,8 +174,7 @@ int main(int argc, char* argv[]) {
 
 		}
 		else if(strstr(argv[i], "--silent") || strstr(argv[i], "-si")) {
-			dbg_puts("Prints nothing into console.");
-
+			verbose = false;
 		}
 		else if(strstr(argv[i], "-h") || strstr(argv[i], "?") || strstr(argv[i], "-help") != NULL) {
 			puts("This is a spritesheet gen. By MaGetzUb 2k20");
@@ -192,7 +191,7 @@ int main(int argc, char* argv[]) {
 			puts("--input-dir <directory path>, -idir <pattern>		Sets a directory where to scan the images.");
 			puts("--frame-count <number>, -fc <number>				How many images are we reading from the current directory.");
 			puts("--output <file path>, -o <file path>				Sets an output file path.");
-			puts("--no-info, -ni                                    Works silently.")
+			puts("--silent, -si                                    Works silently.");
 			exit(0);
 		}
 	}
