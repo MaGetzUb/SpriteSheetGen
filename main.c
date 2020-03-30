@@ -33,8 +33,8 @@
 #include "stb_image_write.h"
 
 void TestArgumentSanity(int index, int num_args, bool verbose) {
-	if((index + 1) == num_args && verbose) {
-		puts("ERROR: Not enough arguments!");
+	if((index + 1) == num_args) {
+		if(verbose) puts("ERROR: Not enough arguments!");
 		exit(-1);
 	}
 }
