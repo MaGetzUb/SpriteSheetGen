@@ -82,9 +82,10 @@ int main(int argc, char* argv[]) {
 #define dbg_printf(msg, ...) if(verbose) printf(msg, #__VA_ARGS__);
 #endif 
 	if(argc < 1) {
-		dbg_puts("No thing to do, no arguments given. Try --help");
+		dbg_puts("Nothing to do, no arguments given. Try --help");
 	}
 
+	//Parse arguments.
 	for(i = 1; i < argc; i++) {
 
 		if(strstr(argv[i], "--pattern") || strstr(argv[i], "-pt")) {
@@ -196,9 +197,10 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	
-	
+	//Allocate pointer list for images
 	images = malloc(sizeof(stbi_uc*) * frame_count);
 
+	//Fix the filepath, if the last character isn't / or \ 
 	j = strlen(file_path);
 	if(file_path[j - 1] != '\\' && file_path[j - 1] != '/') {
 #ifdef _WIN32
@@ -208,31 +210,40 @@ int main(int argc, char* argv[]) {
 #endif 
 	}
 
+	//Start loading pictures 
 	start = clock();
 	j = 0; 
 	for(i = start_index; i < frame_count; i++, j++) {
+		
+		//Generate the image name with the pattern given through arguments
 		sprintf(file, pattern, i);
 		sprintf(file_path, "%s%s", input_dir, file);
 		images[j] = stbi_load(file_path, &x, &y, &cmp, 4);
-		if(images[j] == NULL) {
-			dbg_printf("Cannot load image: %s\n", file_path);
-			dbg_puts("Skipping frame...");
-			j--;
-			frame_count--;
-		} else {
+		
+		//Image was loaded
+		if(images[j]) {
 			if(!sprite_width) {
+				//Assume the sprite size from the first image, ...
 				sprite_width = x;
 				sprite_height = y;
 
+				//... and calculate result image siz.
 				result_size_x = sprite_width * sprites_per_row;
 				result_size_y = sprite_height * (frame_count / sprites_per_row);
 			}
 			else {
+				//Sprite size wasn't consistent, quit and whine.
 				if(sprite_width != x && sprite_height != y) {
 					dbg_printf("ERROR: Inconsistent sprite size in file: %s\n", file_path);
-					exit(0);
+					exit(-1);
 				}
 			}
+		} else {
+			//Couldn't load an image, skip it. 
+			dbg_printf("Cannot load image: %s\n", file_path);
+			dbg_puts("Skipping frame...");
+			j--;
+			frame_count--;
 		}
 	}
 
@@ -243,35 +254,45 @@ int main(int argc, char* argv[]) {
 		exit(-1);
 	}
 
+	//Allocate memory for the result picture, ...
 	result_buffer = malloc(result_size_x * result_size_y * 4);
+	//And zero it.
 	memset(result_buffer, 0, result_size_x* result_size_y * 4);
 
 	start = clock();
 	x = 0;
 	y = 0;
 
+	//Now copy each scanline from each sprite into the result image.
 	for(i = start_index; i < start_index + frame_count; i++) {
+		//Calculate result image coordinates
 		x = i % sprites_per_row;
 		y = i / sprites_per_row;
 		for(j = 0; j < sprite_height; j++) {
-
+			//Calculate the exact memory locations for the sprite to be stored in the final image
 			write = result_buffer + (x * sprite_width * 4) + (y * sprite_height * result_size_x * 4 + j * result_size_x * 4);
+			//Calculate the read location from the sprite
 			read = images[i] + (j * sprite_width * 4);
 
+			//Now copy each line.
 			memcpy(write, read, sprite_width * 4);
 
 		}
+		//Free each allocated image after copy is done
 		stbi_image_free(images[i]);
 	}
 	
+	//Free the pointers. 
 	free(images);
 
 	result2 = clock() - start;
-
+	
+	//Search for the file extension start location.
 	tmp_ptr = strchr(output_file, '.');
 
 	if(tmp_ptr == NULL) {
-		puts("ERROR! No output file specified!");
+		dbg_puts("ERROR! No output file specified!");
+		free(result_buffer);
 		exit(-1);
 	}
 
@@ -279,12 +300,12 @@ int main(int argc, char* argv[]) {
 
 	if(!strcmp(tmp_ptr, ".bmp")) {
 		if(!stbi_write_bmp(output_file, result_size_x, result_size_y, 4, result_buffer, 0)) {
-			dbg_puts("ERROR! JPG write failed!");
+			dbg_puts("ERROR! BMP write failed!");
 			exit(-1);
 		}
 	} else if(!strcmp(tmp_ptr, ".png")) {
 		if(!stbi_write_png(output_file, result_size_x, result_size_y, 4, result_buffer, 0)) {
-			dbg_puts("ERROR! JPG write failed!");
+			dbg_puts("ERROR! PNG write failed!");
 			exit(-1);
 		}
 	} else if(!strcmp(tmp_ptr, ".jpg")) {
@@ -294,16 +315,20 @@ int main(int argc, char* argv[]) {
 		}
 	} else if(!strcmp(tmp_ptr, ".tga")) {
 		if(!stbi_write_tga(output_file, result_size_x, result_size_y, 4, result_buffer)) {
-			dbg_puts("ERROR! JPG write failed!");
+			dbg_puts("ERROR! TGA write failed!");
 			exit(-1);
 		}
 	} else {
-		dbg_printf("Only supported formats are: .png, .bmp, .jpg, .tga.");
+		dbg_printf("Only supported formats are: .png, .bmp, .jpg and .tga.");
 		exit(0);
 	}
 
+	//We can free the result buffer now.
+	free(result_buffer);
+
 	result3 = clock() - start;
 
+	//Print some performance info.
 	if(verbose) {
 		printf("Loading %d images took: %Fs\n", frame_count, (((double)result1) / CLOCKS_PER_SEC));
 		printf("Stitching took: %Fs\n", (((double)result2) / CLOCKS_PER_SEC));
@@ -311,6 +336,8 @@ int main(int argc, char* argv[]) {
 		printf("All major operations took: %Fs combined.\n", (((double)(result1 + result2 + result3)) / CLOCKS_PER_SEC));
 		i = getchar();
 	}
-	return true;
+
+
+	return 0;
 
 }
