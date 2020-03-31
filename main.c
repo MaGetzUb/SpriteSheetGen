@@ -217,7 +217,13 @@ int main(int argc, char* argv[]) {
 		
 		//Generate the image name with the pattern given through arguments
 		sprintf(file, pattern, i);
-		sprintf(file_path, "%s%s", input_dir, file);
+
+		//If we load the images from some other directory than current dir. 
+		if(input_dir)
+			sprintf(file_path, "%s%s", input_dir, file);
+		else //Load the images from current dir.
+			sprintf(file_path, "%s", file);
+
 		images[j] = stbi_load(file_path, &x, &y, &cmp, 4);
 		
 		//Image was loaded
