@@ -1,4 +1,7 @@
 .git/
 .vs/
 Debug/
+Release/
 SpriteSheetGen/Debug/
+SpriteSheetGen/Release/
+*.user
