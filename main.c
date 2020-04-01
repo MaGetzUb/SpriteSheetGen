@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <time.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -69,7 +68,7 @@ int main(int argc, char* argv[]) {
 	char* end_ptr;
 
 	unsigned pixel;
-	bool verbose = true;
+	int verbose = 1;
 
 	stbi_uc* write = NULL;
 	stbi_uc* read = NULL;
@@ -83,8 +82,9 @@ int main(int argc, char* argv[]) {
 #else 
 #define dbg_printf(msg, ...) if(verbose) printf(msg, #__VA_ARGS__);
 #endif 
-	if(argc < 1) {
+	if(argc < 2) {
 		dbg_puts("Nothing to do, no arguments given. Try --help");
+		exit(0);
 	}
 
 	//Parse arguments.
@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
 
 		}
 		else if(strstr(argv[i], "--silent") || strstr(argv[i], "-si")) {
-			verbose = false;
+			verbose = 0;
 		}
 		else if(strstr(argv[i], "-h") || strstr(argv[i], "?") || strstr(argv[i], "-help") != NULL) {
 			puts("This is a spritesheet gen. By MaGetzUb 2k20");
@@ -191,10 +191,10 @@ int main(int argc, char* argv[]) {
 			puts("\t\t\t\t\t\t\t\tso $04d for example");
 			puts("--sprites-per-row <number>, -spr <number>			Sets number of sprites per row in the output file.");
 			puts("--start-index <number>, -sti <number>				Sets the start index for filename aka. For example 1, for 0001.png");
-			puts("--input-dir <directory path>, -idir <pattern>		Sets a directory where to scan the images.");
+			puts("--input-dir <directory path>, -idir <pattern>			Sets a directory where to scan the images.");
 			puts("--frame-count <number>, -fc <number>				How many images are we reading from the current directory.");
 			puts("--output <file path>, -o <file path>				Sets an output file path.");
-			puts("--silent, -si                                    Works silently.");
+			puts("--silent, -si										Works silently.");
 			exit(0);
 		}
 	}
@@ -349,6 +349,8 @@ int main(int argc, char* argv[]) {
 		printf("Stitching took: %Fs\n", (((double)result2) / CLOCKS_PER_SEC));
 		printf("Saving result took: %Fs\n", (((double)result2) / CLOCKS_PER_SEC));
 		printf("All major operations took: %Fs combined.\n", (((double)(result1 + result2 + result3)) / CLOCKS_PER_SEC));
+
+		puts("Press enter to continue.");
 		i = getchar();
 	}
 
