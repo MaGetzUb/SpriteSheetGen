@@ -31,7 +31,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void TestArgumentSanity(int index, int num_args, bool verbose) {
+void TestArgumentSanity(int index, int num_args, int verbose) {
 	if((index + 1) == num_args) {
 		if(verbose) puts("ERROR: Not enough arguments!");
 		exit(-1);
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
 			puts("--input-dir <directory path>, -idir <pattern>			Sets a directory where to scan the images.");
 			puts("--frame-count <number>, -fc <number>				How many images are we reading from the current directory.");
 			puts("--output <file path>, -o <file path>				Sets an output file path.");
-			puts("--silent, -si										Works silently.");
+			puts("--silent, -si							Works silently.");
 			exit(0);
 		}
 	}
