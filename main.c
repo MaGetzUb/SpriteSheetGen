@@ -66,6 +66,8 @@ int main(int argc, char* argv[]) {
 	int result_size_x;
 	int result_size_y;
 
+	char* end_ptr;
+
 	unsigned pixel;
 	bool verbose = true;
 
@@ -108,7 +110,7 @@ int main(int argc, char* argv[]) {
 			TestArgumentSanity(i, argc, verbose);
 
 			if(!sprites_per_row) {
-				char* end_ptr;
+
 				sprites_per_row = strtol(argv[++i], &end_ptr, 10);
 				if(errno == ERANGE) {
 					dbg_puts("Value given to argument is not a number!");
@@ -118,12 +120,12 @@ int main(int argc, char* argv[]) {
 				dbg_puts("Sprites per row is already set!");
 			}
 		}
-		else if(strstr(argv[i], "--start-index") || strstr(argv[i], "-si")) {
+		else if(strstr(argv[i], "--start-index") || strstr(argv[i], "-sti")) {
 
 			TestArgumentSanity(i, argc, verbose);
 
 			if(!sprites_per_row) {
-				char* end_ptr;
+				
 				start_index = strtol(argv[++i], &end_ptr, 10);
 				if(errno == ERANGE) {
 					dbg_puts("Value given to argument is not a number!");
@@ -188,7 +190,7 @@ int main(int argc, char* argv[]) {
 			puts("\t\t\t\t\t\t\t\texcept percentage sign (%)  is replaced with $,");
 			puts("\t\t\t\t\t\t\t\tso $04d for example");
 			puts("--sprites-per-row <number>, -spr <number>			Sets number of sprites per row in the output file.");
-			puts("--start-index <number>, -si <number>				Sets the start index for filename aka. For example 1, for 0001.png");
+			puts("--start-index <number>, -sti <number>				Sets the start index for filename aka. For example 1, for 0001.png");
 			puts("--input-dir <directory path>, -idir <pattern>		Sets a directory where to scan the images.");
 			puts("--frame-count <number>, -fc <number>				How many images are we reading from the current directory.");
 			puts("--output <file path>, -o <file path>				Sets an output file path.");
@@ -197,6 +199,13 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	
+	//If sprites per row isn't set, 
+	//assume sprites per row is frame count, 
+	//so in the final image, there's just one row.
+	if(!sprites_per_row) {
+		sprites_per_row = frame_count;
+	}
+
 	//Allocate pointer list for images
 	images = malloc(sizeof(stbi_uc*) * frame_count);
 
